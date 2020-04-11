@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.springframework.org/schema/security" xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+
+<!--配置favicon.ico不进行拦截-->
+<http pattern="/favicon.ico" security="none"></http>
+<!--以下页面不被拦截-->
+<http pattern="/shoplogin.html" security="none"></http>
+<http security="none" pattern="/register.html" />
+<http pattern="/css/**" security="none"></http>
+<http pattern="/img/**" security="none"></http>
+<http pattern="/js/**" security="none"></http>
+<http pattern="/plugins/**" security="none"></http>
+    <http pattern="/seller/add.do" security="none"></http>
+
+<!--页面拦截规则-->
+
+<http use-expressions="false">
+    <intercept-url pattern="/**" access="ROLE_SELLER"></intercept-url>
+
+    <form-login login-page="/shoplogin.html" default-target-url="/admin/index.html"
+                authentication-failure-url="/shoplogin.html" always-use-default-target="true"
+    ></form-login>
+    <csrf disabled="true"></csrf>
+    <headers>
+        <frame-options policy="SAMEORIGIN"></frame-options>
+    </headers>
+
+    <logout></logout>
+</http>
+
+<!--认证管理-->
+<authentication-manager>
+    <authentication-provider user-service-ref="userDetailServiceImpl">
+        <password-encoder ref="bcryptEncoder"></password-encoder>
+    </authentication-provider>
+</authentication-manager>
+<dubbo:application name="shopWeb"/>
+<dubbo:registry address="zookeeper://192.168.188.188:2181"/>
+<dubbo:reference id="sellerService" interface="com.offcn.sellergoods.service.SellerService"/>
+<beans:bean id="userDetailServiceImpl" class="com.offcn.service.UserDetailServiceImpl">
+    <beans:property name="sellerService" ref="sellerService"></beans:property>
+</beans:bean>
+<beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></beans:bean>
+</beans:beans>
