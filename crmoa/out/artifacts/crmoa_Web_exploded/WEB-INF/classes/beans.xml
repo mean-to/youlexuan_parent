@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/aop
+                        http://www.springframework.org/schema/aop/spring-aop.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+                        http://www.springframework.org/schema/cache
+                        http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+   <!-- 开启注解扫描 -->
+   <context:component-scan base-package="com.offcn"> 
+      <!-- 去除Controller注解的扫描 -->
+      <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+   </context:component-scan>
+
+
+   <!-- 引入外部的properties文件 -->
+   <context:property-placeholder location="classpath:db.properties"/>
+   <!-- 实例化数据源连接池 -->
+   <bean id="ds" class="com.alibaba.druid.pool.DruidDataSource">
+	   <property name="driverClassName" value="${db_driver}"></property>
+	   <property name="url" value="${db_url}"></property>
+	   <property name="username" value="${db_uname}"></property>
+	   <property name="password" value="${db_pwd}"></property>
+	</bean>
+
+  
+   <!-- 完成SqlSessionFactory的实例化 -->
+   <bean id="sf" class="org.mybatis.spring.SqlSessionFactoryBean">
+      <!-- 依赖mybatis的全局配置文件 -->
+      <property name="configLocation" value="classpath:MybatisConfig.xml"></property>
+      <property name="dataSource" ref="ds"></property>
+       <!-- 映射文件 -->
+      <property name="mapperLocations" value="classpath:com/offcn/*/dao/*.xml"></property>
+   </bean>
+  
+  
+  <!-- 完成Dao层实现类的实例化 -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+      <!-- dao层接口所在包名 -->
+      <property name="basePackage" value="com.offcn.*.dao"></property>
+  </bean>
+  
+  
+   <!-- 事务配置 -->
+   <!-- 含有事务控制的类 （代理类）-->
+   <bean id="tx" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="ds"></property>
+   </bean>
+  
+   
+   <!--事务的通知：事务的特性（隔离级别，传播行为，是否只读）  -->
+   <tx:advice id="myadvice" transaction-manager="tx">
+      <tx:attributes>
+         <tx:method name="*" isolation="DEFAULT" propagation="REQUIRED" read-only="true"/>
+         <tx:method name="save*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+         <tx:method name="upda*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+         <tx:method name="del*" isolation="DEFAULT" propagation="REQUIRED" read-only="false"/>
+      </tx:attributes>
+   </tx:advice>
+   
+   <aop:config>
+      <aop:pointcut expression="execution( * com.offcn.*.service.*.*(..))" id="pid"/>
+      <aop:advisor advice-ref="myadvice" pointcut-ref="pid"/>
+   </aop:config>
+   
+
+</beans>

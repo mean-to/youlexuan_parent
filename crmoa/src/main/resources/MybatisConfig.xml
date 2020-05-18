@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    
+    <!-- 延迟加载和驼峰式编写规范支持 -->
+    <settings>
+       <setting name="lazyLoadingEnabled" value="true"/>
+       <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+    
+    
+    <!-- 为实体类类型起别名 -->
+    <typeAliases>
+      <package name="com.offcn.pro.bean"/>
+    </typeAliases>
+	
+	
+	<!-- 分页插件 -->
+	<plugins>
+	   <plugin interceptor="com.github.pagehelper.PageInterceptor">
+	      <!-- 分页方言 -->
+	      <property name="helperDialect" value="mysql"/>
+	   </plugin>
+	</plugins>
+	
+
+
+</configuration>

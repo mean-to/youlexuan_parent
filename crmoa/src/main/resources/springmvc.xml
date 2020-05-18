@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+                        http://www.springframework.org/schema/mvc
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+                        >
+       
+     <!-- 开启注解扫描 -->                   
+     <context:component-scan base-package="com.offcn.*.controller"></context:component-scan>
+     <!-- 开启springmvc的注解驱动 -->
+     <mvc:annotation-driven conversion-service="myDateService"></mvc:annotation-driven>
+     
+     <!-- 前端处理器不处理的静态资源，由默认原生servlet处理器处理静态资源 -->
+     <mvc:default-servlet-handler/>
+     
+     
+     <!--定义一个转化器服务，用来运行调用转化器  -->
+     <bean id="dc" class="com.offcn.utils.DateConvertor"></bean>
+     <bean id="myDateService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+          <set>
+             <ref bean="dc"/>
+          </set>
+        </property>
+     </bean>
+     
+     <!-- 实例化非默认的映射处理器 -->
+     <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"></bean>
+     <!-- 实例化非默认的处理器适配器 -->
+     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"></bean>
+     <!-- 配置视图解析器 -->
+     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 前缀：/:WebContent路径 -->
+        <property name="prefix" value="/views/"></property>
+        <property name="suffix" value=".jsp"></property>
+     </bean>
+     
+     
+     <!-- 实例化文件解析器,id="multipartResolver" -->
+     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+       <property name="maxUploadSize" value="20000000"></property>
+       <property name="maxUploadSizePerFile" value="1000000"></property>
+     </bean>
+     
+     <!--登录拦截器配置  -->
+    <!--  <mvc:interceptors>
+     
+        <mvc:interceptor>
+           要拦截的请求:/* /** 
+           <mvc:mapping path="/**"/>
+           哪些请求不被拦截
+           <mvc:exclude-mapping path="/login"/>
+           实例化自定义拦截器
+           <bean class="com.offcn.utils.LoginInter"></bean>
+        </mvc:interceptor>
+        <mvc:interceptor>
+           要拦截的请求:/* /** 
+           <mvc:mapping path="/**"/>
+           哪些请求不被拦截
+           <mvc:exclude-mapping path="/login"/>
+           实例化自定义拦截器
+           <bean class="com.offcn.utils.LoginInter2"></bean>
+        </mvc:interceptor>
+     </mvc:interceptors>
+     
+     实例化自定义的异常处理器
+     <bean class="com.offcn.utils.MyExp"></bean> -->
+                        
+</beans>
